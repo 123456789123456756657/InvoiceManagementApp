@@ -1,0 +1,78 @@
+﻿@model Invoice
+@using InvoiceManagementApp.Models.Models;
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>Create Invoice</h3>
+        </div>
+        <div class="card-body">
+            <!-- Display Validation Errors -->
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <form asp-controller="Invoices" asp-action="Create" method="post">
+                <!-- Invoice Date -->
+                <div class="mb-3">
+                    <label for="date" class="form-label">Invoice Date</label>
+                    <input asp-for="Date" type="date" class="form-control" placeholder="Select invoice date" />
+                </div>
+
+                <!-- Invoice Items Table -->
+                <table class="table table-bordered table-hover shadow-sm" id="invoiceItems">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th scope="col">Product</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically added -->
+                    </tbody>
+                </table>
+
+                <!-- Buttons for Adding Rows and Submitting Invoice -->
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="button" class="btn btn-secondary" id="addRow">
+                        <i class="bi bi-plus-circle"></i> Add Row
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Save Invoice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+@section Scripts {
+    <script>
+        document.getElementById('addRow').addEventListener('click', function () {
+            const table = document.getElementById('invoiceItems').getElementsByTagName('tbody')[0];
+            const rowCount = table.rows.length;
+
+            const row = table.insertRow();
+
+            row.innerHTML = `
+                        <td><input type="text" name="Items[${rowCount}].Product" class="form-control" placeholder="Enter product name" /></td>
+                        <td><input type="number" name="Items[${rowCount}].Quantity" class="form-control" placeholder="Enter quantity" /></td>
+                        <td><input type="number" step="0.01" name="Items[${rowCount}].Price" class="form-control" placeholder="Enter price" /></td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger removeRow">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </td>
+                    `;
+
+            // Add event listener to the remove button
+            row.querySelector('.removeRow').addEventListener('click', function () {
+                row.remove();
+            });
+        });
+    </script>
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+}

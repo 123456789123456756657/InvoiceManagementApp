@@ -6,20 +6,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
 
 namespace InvoiceManagementApp.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IStringLocalizer<HomeController> _localizer;
+
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IStringLocalizer<HomeController> localizer)
         {
             _logger = logger;
+            _localizer = localizer;
         }
 
         public IActionResult Index()
         {
+            ViewBag.WelcomeText = _localizer["WelcomeText"];
             return View();
         }
 

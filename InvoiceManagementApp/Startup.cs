@@ -1,11 +1,21 @@
+using InvoiceManagementApp.Models.ApplicationContext;
+using InvoiceManagementApp.Models.Models;
+using InvoiceManagementApp.Repository.IRepository;
+using InvoiceManagementApp.Repository.Repository;
+using InvoiceManagementApp.Service.Email;
+using InvoiceManagementApp.Service.Invoices;
+using InvoiceManagementApp.Service.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,12 +33,48 @@ namespace InvoiceManagementApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[]
+                {
+            new CultureInfo("en"), // English
+            new CultureInfo("ar")  // Arabic
+        };
+
+                options.DefaultRequestCulture = new RequestCulture("en"); // Default language
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
+            services.AddControllersWithViews();
+            services.AddDbContext<ApplicationContextDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+
+            services.AddScoped<UserService>();
+            services.AddScoped<InvoiceService>();
+
+            services.AddScoped<IEmailService, EmailService>();
+            services.Configure<GoogleReCaptchaSettings>(Configuration.GetSection("GoogleReCaptcha"));
+            services.AddSession();
+            services.AddHttpContextAccessor();
+            services.AddControllersWithViews()
+                .AddViewLocalization()
+        .AddDataAnnotationsLocalization()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true;
+    });
             services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -43,9 +89,9 @@ namespace InvoiceManagementApp
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseRequestLocalization();
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

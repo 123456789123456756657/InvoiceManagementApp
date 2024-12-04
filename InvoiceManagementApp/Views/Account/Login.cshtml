@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg" style="width: 25rem;">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>Login</h3>
+        </div>
+        <div class="card-body">
+            <!-- Display Error Message -->
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+
+            <!-- Display Success Message -->
+            @if (ViewBag.SuccessMessage != null)
+            {
+                <div class="alert alert-success" role="alert">
+                    @ViewBag.SuccessMessage
+                </div>
+            }
+
+            <!-- Login Form -->
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="Username" placeholder="Enter your username" required />
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="Password" placeholder="Enter your password" required />
+                </div>
+                <div class="mb-3 text-center">
+                    <div class="g-recaptcha" data-sitekey="6LfLm5EqAAAAAHfmBB_6ab_e513qQ_JI18Vfcmi9"></div>
+                    <input type="hidden" id="g-recaptcha-response" name="gRecaptchaResponse" />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <small class="text-muted">
+                Don't have an account? <a href="/Account/Register">Register</a>
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Google reCAPTCHA Script -->
+<script src="https://www.google.com/recaptcha/api.js"></script>
+<script>
+    grecaptcha.ready(function () {
+        grecaptcha.execute('6LfLm5EqAAAAAHfmBB_6ab_e513qQ_JI18Vfcmi9', { action: 'submit' }).then(function (token) {
+            document.getElementById('g-recaptcha-response').value = token;
+        });
+    });
+</script>
